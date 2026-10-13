@@ -3,7 +3,10 @@ require_once __DIR__ . '/../config/bootstrap.php';
 app_require_permission('lotes');
 require_once APP_ROOT . '/service/PdfService.php';
 $lote = app_system()->obterLote((int) ($_GET['id'] ?? 0));
-if (!$lote) { flash('erro', 'Lote não encontrado.'); app_redirect('view/lotes.php'); }
+if (!$lote) {
+    flash('erro', 'Lote não encontrado.');
+    app_redirect('view/lotes.php');
+}
 $pdf = new PdfService();
 $pdf->titulo('UMADEPRESP 2027 — Lote para fornecedor', $lote['codigo_lote']);
 $pdf->chaveValor('Código do lote', $lote['codigo_lote']);

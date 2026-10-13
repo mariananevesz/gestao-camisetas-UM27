@@ -8,16 +8,152 @@ $tituloPagina = 'Lotes para fornecedor';
 $paginaAtiva = 'lotes';
 require __DIR__ . '/partials/header.php';
 ?>
-<div class="page-heading"><div><span class="eyebrow">Produção</span><h2>Lotes para fornecedor</h2><p>Somente pedidos conferidos e liberados para produção podem entrar em um lote. Pagamento não é requisito para produção.</p></div></div>
+<div class="page-heading">
+    <div><span class="eyebrow">Produção</span>
+        <h2>Lotes para fornecedor</h2>
+        <p>Somente pedidos conferidos e liberados para produção podem entrar em um lote. Pagamento não é requisito para
+            produção.</p>
+    </div>
+</div>
 <?php require __DIR__ . '/partials/flash.php'; ?>
 <?php if ($elegiveis): ?>
-<section class="card mod-section"><div class="mod-card-heading"><h3>Pedidos disponíveis para lote</h3><span class="status-pill info"><?= count($elegiveis) ?> elegível(is)</span></div>
-<?php if (!app_has_permission('gerar_lotes')): ?><div class="mod-warning">Seu perfil pode consultar os lotes, mas não tem permissão para gerar um novo lote.</div><?php else: ?>
-<form action="<?= e(app_url('processamento/processamentoLotes.php')) ?>" method="post" data-confirm="Gerar um lote com os pedidos selecionados? Cada pedido só poderá entrar em um lote."><input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>"><input type="hidden" name="acao" value="criar">
-<div class="mod-table-wrap"><table class="mod-table"><thead><tr><th>Selecionar</th><th>Pedido</th><th>Comprador</th><th>Congregação</th><th>Valor interno</th></tr></thead><tbody><?php foreach ($elegiveis as $p): ?><tr><td><input type="checkbox" name="pedido_ids[]" value="<?= (int) $p['id'] ?>" aria-label="Selecionar <?= e($p['numero_pedido']) ?>"></td><td><?= e($p['numero_pedido']) ?></td><td><?= e($p['nome_comprador']) ?></td><td><?= e($p['congregacao_nome']) ?></td><td><?= e(formatar_moeda($p['valor_total'])) ?></td></tr><?php endforeach; ?></tbody></table></div>
-<div class="mod-actions"><button class="btn btn-primary" type="submit">Gerar lote dos pedidos selecionados</button></div></form><?php endif; ?></section>
-<?php else: ?><section class="card mod-empty mod-section"><h3>Nenhum pedido elegível neste momento</h3><p>Os pedidos precisam estar conferidos e liberados para produção. Pedidos já incluídos em outro lote não aparecem aqui.</p></section><?php endif; ?>
-<section class="card mod-section"><div class="mod-card-heading"><h3>Histórico de lotes</h3><span class="status-pill"><?= count($lotes) ?> lote(s)</span></div>
-<?php if (!$lotes): ?><div class="mod-empty">Ainda não há lotes gerados.</div><?php else: ?><div class="mod-table-wrap"><table class="mod-table"><thead><tr><th>Código</th><th>Gerado em</th><th>Pedidos</th><th>Status</th><th>Pedido externo</th><th>Gerado por</th><th>Enviado em</th><th>Enviado por</th><th>Ações</th></tr></thead><tbody>
-<?php foreach ($lotes as $lote): $detalhesLote = app_system()->obterLote((int) $lote['id']); ?><tr><td><strong><?= e($lote['codigo_lote']) ?></strong><br><details><summary>Ver pedidos e quantidades</summary><div class="mod-table-wrap"><strong>Consolidado</strong><table class="mod-table"><thead><tr><th>Modelo</th><th>Tamanho</th><th>Quantidade</th></tr></thead><tbody><?php foreach ($detalhesLote['itens_consolidados'] as $itemLote): ?><tr><td><?= e($itemLote['modelo']) ?></td><td><?= e($itemLote['tamanho']) ?></td><td><?= (int) $itemLote['quantidade'] ?></td></tr><?php endforeach; ?></tbody></table><strong>Pedidos incluídos</strong><ul><?php foreach ($detalhesLote['pedidos'] as $pedidoLote): ?><li><?= e($pedidoLote['numero_pedido']) ?> — <?= e($pedidoLote['congregacao_nome']) ?></li><?php endforeach; ?></ul></div></details></td><td><?= e(formatar_data_hora($lote['data_geracao'])) ?></td><td><?= (int) $lote['quantidade_pedidos'] ?></td><td><span class="status-pill <?= $lote['status'] === 'entregue' ? 'ok' : ($lote['status'] === 'enviado_fornecedor' ? 'info' : 'warn') ?>"><?= e(str_replace('_', ' ', $lote['status'])) ?></span></td><td><?= e($lote['numero_pedido_externo'] ?: '—') ?></td><td><?= e($lote['gerado_por_nome'] ?: 'Usuário removido') ?></td><td><?= e(formatar_data_hora($lote['data_envio'])) ?></td><td><?= e($lote['enviado_por_nome'] ?: '—') ?></td><td><div class="mod-actions"><a class="btn btn-secondary btn-compacto" href="<?= e(app_url('view/pdfLote.php?id=' . (int) $lote['id'])) ?>" target="_blank" rel="noopener">PDF fornecedor</a><details><summary>Atualizar</summary><form action="<?= e(app_url('processamento/processamentoLotes.php')) ?>" method="post" class="form-stack" style="margin-top:10px;min-width:220px"><input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>"><input type="hidden" name="acao" value="atualizar"><input type="hidden" name="lote_id" value="<?= (int) $lote['id'] ?>"><div class="campo-mod"><label>Status</label><select name="status"><?php if ($lote['status'] === 'preparado'): ?><option value="preparado" selected>Preparado</option><option value="enviado_fornecedor">Enviado ao fornecedor</option><?php elseif ($lote['status'] === 'enviado_fornecedor'): ?><option value="enviado_fornecedor" selected>Enviado ao fornecedor</option><option value="entregue">Entregue</option><?php else: ?><option value="entregue" selected>Entregue</option><?php endif; ?></select></div><div class="campo-mod"><label>Nº do pedido externo (opcional)</label><input name="numero_pedido_externo" maxlength="100" value="<?= e($lote['numero_pedido_externo'] ?? '') ?>"></div><button class="btn btn-primary btn-compacto" type="submit">Salvar atualização</button></form></details></div></td></tr><?php endforeach; ?></tbody></table></div><?php endif; ?></section>
+    <section class="card mod-section">
+        <div class="mod-card-heading">
+            <h3>Pedidos disponíveis para lote</h3><span class="status-pill info"><?= count($elegiveis) ?>
+                elegível(is)</span>
+        </div>
+        <?php if (!app_has_permission('gerar_lotes')): ?>
+            <div class="mod-warning">Seu perfil pode consultar os lotes, mas não tem permissão para gerar um novo lote.</div>
+        <?php else: ?>
+            <form action="<?= e(app_url('processamento/processamentoLotes.php')) ?>" method="post"
+                data-confirm="Gerar um lote com os pedidos selecionados? Cada pedido só poderá entrar em um lote."><input
+                    type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>"><input type="hidden" name="acao"
+                    value="criar">
+                <div class="mod-table-wrap">
+                    <table class="mod-table">
+                        <thead>
+                            <tr>
+                                <th>Selecionar</th>
+                                <th>Pedido</th>
+                                <th>Comprador</th>
+                                <th>Congregação</th>
+                                <th>Valor interno</th>
+                            </tr>
+                        </thead>
+                        <tbody><?php foreach ($elegiveis as $p): ?>
+                                <tr>
+                                    <td><input type="checkbox" name="pedido_ids[]" value="<?= (int) $p['id'] ?>"
+                                            aria-label="Selecionar <?= e($p['numero_pedido']) ?>"></td>
+                                    <td><?= e($p['numero_pedido']) ?></td>
+                                    <td><?= e($p['nome_comprador']) ?></td>
+                                    <td><?= e($p['congregacao_nome']) ?></td>
+                                    <td><?= e(formatar_moeda($p['valor_total'])) ?></td>
+                                </tr><?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mod-actions"><button class="btn btn-primary" type="submit">Gerar lote dos pedidos
+                        selecionados</button></div>
+            </form><?php endif; ?>
+    </section>
+<?php else: ?>
+    <section class="card mod-empty mod-section">
+        <h3>Nenhum pedido elegível neste momento</h3>
+        <p>Os pedidos precisam estar conferidos e liberados para produção. Pedidos já incluídos em outro lote não aparecem
+            aqui.</p>
+    </section><?php endif; ?>
+<section class="card mod-section">
+    <div class="mod-card-heading">
+        <h3>Histórico de lotes</h3><span class="status-pill"><?= count($lotes) ?> lote(s)</span>
+    </div>
+    <?php if (!$lotes): ?>
+        <div class="mod-empty">Ainda não há lotes gerados.</div><?php else: ?>
+        <div class="mod-table-wrap">
+            <table class="mod-table">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Gerado em</th>
+                        <th>Pedidos</th>
+                        <th>Status</th>
+                        <th>Pedido externo</th>
+                        <th>Gerado por</th>
+                        <th>Enviado em</th>
+                        <th>Enviado por</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($lotes as $lote):
+                        $detalhesLote = app_system()->obterLote((int) $lote['id']); ?>
+                        <tr>
+                            <td><strong><?= e($lote['codigo_lote']) ?></strong><br>
+                                <details>
+                                    <summary>Ver pedidos e quantidades</summary>
+                                    <div class="mod-table-wrap"><strong>Consolidado</strong>
+                                        <table class="mod-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Modelo</th>
+                                                    <th>Tamanho</th>
+                                                    <th>Quantidade</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody><?php foreach ($detalhesLote['itens_consolidados'] as $itemLote): ?>
+                                                    <tr>
+                                                        <td><?= e($itemLote['modelo']) ?></td>
+                                                        <td><?= e($itemLote['tamanho']) ?></td>
+                                                        <td><?= (int) $itemLote['quantidade'] ?></td>
+                                                    </tr><?php endforeach; ?>
+                                            </tbody>
+                                        </table><strong>Pedidos incluídos</strong>
+                                        <ul><?php foreach ($detalhesLote['pedidos'] as $pedidoLote): ?>
+                                                <li><?= e($pedidoLote['numero_pedido']) ?> —
+                                                    <?= e($pedidoLote['congregacao_nome']) ?></li><?php endforeach; ?>
+                                        </ul>
+                                    </div>
+                                </details>
+                            </td>
+                            <td><?= e(formatar_data_hora($lote['data_geracao'])) ?></td>
+                            <td><?= (int) $lote['quantidade_pedidos'] ?></td>
+                            <td><span
+                                    class="status-pill <?= $lote['status'] === 'entregue' ? 'ok' : ($lote['status'] === 'enviado_fornecedor' ? 'info' : 'warn') ?>"><?= e(str_replace('_', ' ', $lote['status'])) ?></span>
+                            </td>
+                            <td><?= e($lote['numero_pedido_externo'] ?: '—') ?></td>
+                            <td><?= e($lote['gerado_por_nome'] ?: 'Usuário removido') ?></td>
+                            <td><?= e(formatar_data_hora($lote['data_envio'])) ?></td>
+                            <td><?= e($lote['enviado_por_nome'] ?: '—') ?></td>
+                            <td>
+                                <div class="mod-actions"><a class="btn btn-secondary btn-compacto"
+                                        href="<?= e(app_url('view/pdfLote.php?id=' . (int) $lote['id'])) ?>" target="_blank"
+                                        rel="noopener">PDF fornecedor</a>
+                                    <details>
+                                        <summary>Atualizar</summary>
+                                        <form action="<?= e(app_url('processamento/processamentoLotes.php')) ?>" method="post"
+                                            class="form-stack" style="margin-top:10px;min-width:220px"><input type="hidden"
+                                                name="csrf_token" value="<?= e(csrf_token()) ?>"><input type="hidden"
+                                                name="acao" value="atualizar"><input type="hidden" name="lote_id"
+                                                value="<?= (int) $lote['id'] ?>">
+                                            <div class="campo-mod"><label>Status</label><select
+                                                    name="status"><?php if ($lote['status'] === 'preparado'): ?>
+                                                        <option value="preparado" selected>Preparado</option>
+                                                        <option value="enviado_fornecedor">Enviado ao fornecedor</option>
+                                                    <?php elseif ($lote['status'] === 'enviado_fornecedor'): ?>
+                                                        <option value="enviado_fornecedor" selected>Enviado ao fornecedor</option>
+                                                        <option value="entregue">Entregue</option><?php else: ?>
+                                                        <option value="entregue" selected>Entregue</option><?php endif; ?>
+                                                </select></div>
+                                            <div class="campo-mod"><label>Nº do pedido externo (opcional)</label><input
+                                                    name="numero_pedido_externo" maxlength="100"
+                                                    value="<?= e($lote['numero_pedido_externo'] ?? '') ?>"></div><button
+                                                class="btn btn-primary btn-compacto" type="submit">Salvar atualização</button>
+                                        </form>
+                                    </details>
+                                </div>
+                            </td>
+                        </tr><?php endforeach; ?>
+                </tbody>
+            </table>
+        </div><?php endif; ?>
+</section>
 <?php require __DIR__ . '/partials/footer.php'; ?>
