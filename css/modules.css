@@ -18,3 +18,48 @@
 .pedido-grupo-vazio{padding:18px}
 @media(max-width:900px){.financeiro-order-list{grid-template-columns:1fr}}
 @media(max-width:600px){.financeiro-order-card{padding:14px}.pedido-grupo-heading{align-items:center}}
+
+/* Gestão de pedidos: busca geral, grupos recolhíveis e cartões em duas colunas. */
+.pedido-busca{display:flex;flex-direction:column;gap:7px;margin:0 0 20px;max-width:720px}
+.pedido-busca label{font-size:13px;font-weight:650;color:#334155}
+.pedido-busca input{width:100%;min-height:44px;padding:10px 13px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:#0f172a;font:inherit}
+.pedido-busca input:focus{outline:3px solid rgba(37,99,235,.14);border-color:#2563eb}
+.pedido-busca p{margin:0}
+.pedido-busca-sem-resultados{margin:0 0 18px}
+.pedido-grupo-recolhivel{margin-top:18px}
+.pedido-grupo-recolhivel>.pedido-grupo-heading{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0;padding:15px 18px;border:1px solid #e2e8f0;border-radius:12px;background:#fff;cursor:pointer;list-style:none}
+.pedido-grupo-recolhivel>.pedido-grupo-heading::-webkit-details-marker{display:none}
+.pedido-grupo-recolhivel>.pedido-grupo-heading::marker{content:""}
+.pedido-grupo-heading-text{min-width:0}
+.pedido-grupo-heading-text h3{margin:0 0 4px;font-size:17px}
+.pedido-grupo-heading-text p{margin:0;color:#64748b;font-size:13px;line-height:1.45}
+.pedido-grupo-heading-meta{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.pedido-grupo-chevron,.mod-order-final-chevron{display:inline-block;font-size:22px;line-height:1;color:#64748b;transition:transform .16s ease}
+.pedido-grupo-recolhivel[open]>.pedido-grupo-heading{border-bottom-left-radius:0;border-bottom-right-radius:0}
+.pedido-grupo-recolhivel[open]>.pedido-grupo-heading .pedido-grupo-chevron{transform:rotate(180deg)}
+.pedido-grupo-conteudo{padding-top:12px}
+.pedido-grupo-conteudo>.pedido-grupo-vazio{margin:0}
+.pedido-grupo .mod-order-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
+.pedido-grupo .mod-order-card{min-width:0;width:100%;margin:0}
+.pedido-grupo .mod-order-head{min-width:0}
+.pedido-grupo .mod-order-identificacao{min-width:0;overflow-wrap:anywhere}
+.pedido-grupo .mod-order-tags{max-width:100%}
+.pedido-grupo .mod-order-data{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.mod-order-card-finalizado{padding:0;overflow:hidden}
+.mod-order-card-finalizado>.mod-order-resumo-finalizado{display:block;padding:15px 17px;cursor:pointer;list-style:none}
+.mod-order-card-finalizado>.mod-order-resumo-finalizado::-webkit-details-marker{display:none}
+.mod-order-card-finalizado>.mod-order-resumo-finalizado::marker{content:""}
+.mod-order-card-finalizado[open]>.mod-order-resumo-finalizado{border-bottom:1px solid #e2e8f0}
+.mod-order-card-finalizado .mod-order-head{display:flex;flex-direction:column;gap:10px}
+.mod-order-card-finalizado .mod-order-identificacao h3{margin:4px 0;font-size:16px;overflow-wrap:anywhere}
+.mod-order-card-finalizado .mod-order-identificacao p{margin:0;color:#64748b;font-size:12px;overflow-wrap:anywhere}
+.mod-order-card-finalizado .mod-order-tags{gap:5px}
+.mod-order-card-finalizado .status-pill{font-size:10px;padding:4px 7px;white-space:normal}
+.mod-order-final-toggle{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px;padding-top:10px;border-top:1px solid #f1f5f9;color:#64748b;font-size:12px;font-weight:650}
+.mod-order-card-finalizado[open] .mod-order-final-chevron{transform:rotate(180deg)}
+.mod-order-expanded{padding:15px 17px 17px}
+.mod-order-expanded .mod-order-data{margin-top:0}
+[data-order-card][hidden], [data-order-section][hidden], [hidden]{display:none!important}
+@media(max-width:900px){.pedido-grupo .mod-order-list{grid-template-columns:1fr}}
+@media(max-width:600px){.pedido-grupo-recolhivel>.pedido-grupo-heading{padding:13px 14px;align-items:center}.pedido-grupo-heading-text p{font-size:12px}.pedido-grupo-heading-meta{gap:7px}.mod-order-card-finalizado>.mod-order-resumo-finalizado,.mod-order-expanded{padding:14px}.pedido-grupo .mod-order-card{padding:14px}.pedido-grupo .mod-order-card-finalizado{padding:0}}
+
